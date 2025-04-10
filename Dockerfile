@@ -1,27 +1,20 @@
-# Use an official Node runtime as a parent image
-FROM node:latest
-
-# Set the working directory in the container
-WORKDIR /usr/src/app
-
-# Copy package.json and yarn.lock files
-COPY package*.json yarn.lock ./
-
-# Install app dependencies
-RUN yarn install
-
-# Bundle app source inside the Docker image
-COPY . .
-
-# Set environment variables
-ARG NAME=Jack
-ARG ENVIRONMENT=development
-ENV NAME $NAME
-ENV ENVIRONMENT $ENVIRONMENT
-
-# Expose port 3002 to the outside world
-EXPOSE 3002
-
-# Define the command to run the app
-CMD ["yarn", "start"]
-
+FROM node:lts AS build-time
+WORKDIR /base
+ENV NODE_ENV=production
+COPY ./package.json ./yarn.lock .
+RUN yarn install --frozen-lockfile
+####
+FROM node:lts-slim AS run-time
+WORKDIR /app
+ARG UID=1001
+ARG GID=1001
+RUN addgroup --gid $GID nodeappgroup && adduser --uid $UID --ingroup nodeappgroup --system nodeappuser
+COPY --from=build-time /base/node_modules /node_modules
+COPY --chown=nodeappuser:nodeappgroup ./package.json ./yarn.lock .
+COPY --chown=nodeappuser:nodeappgroup . .
+####
+ENV PORT=8080
+EXPOSE 8080
+USER nodeappuser
+####
+ENTRYPOINT ["yarn", "start"]
