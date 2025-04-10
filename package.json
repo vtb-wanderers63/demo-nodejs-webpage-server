@@ -16,7 +16,8 @@
     "supertest": "^6.3.3"
   },
   "scripts": {
-    "dev": "nodemon server.js",
+    "start:dev": "nodemon server.js",
+    "start": "node server.js",
     "prepare": "husky install",
     "format-files": "pretty-quick --staged"
   },
