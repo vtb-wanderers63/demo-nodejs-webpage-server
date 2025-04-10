@@ -50,5 +50,5 @@ docker build -t <image-name>:<tag> .
 Start Container:
 
 ```
-docker run --detach -p 3002:3002 --name <container-name> <image>:<tag>
+docker run --detach -p 8080:8080 --name <container-name> <image>:<tag>
 ```
